@@ -28,9 +28,9 @@
     "frost point"
   ],
   "main": "./dist/main.js",
-  "module": "./main.js",
   "files": [
     "lib",
+    "dist",
     "main.js"
   ],
   "scripts": {
