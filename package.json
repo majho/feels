@@ -1,7 +1,7 @@
 {
   "name": "feels",
   "author": "Alexey Bystrov <strikeentco@gmail.com>",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Feels allow you to calculate apparent temperature using heat index, approximate wet-bulb globe temperature, humidex, australian apparent temperature and wind chill.",
   "engines": {
     "node": ">=6.0.0"
