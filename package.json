@@ -1,7 +1,7 @@
 {
   "name": "feels",
   "author": "Alexey Bystrov <strikeentco@gmail.com>",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Feels allow you to calculate apparent temperature using heat index, approximate wet-bulb globe temperature, humidex, australian apparent temperature and wind chill.",
   "engines": {
     "node": ">=6.0.0"
@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
+    "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.18.1",
     "eslint-config-airbnb": "^16.1.0",
@@ -60,7 +61,7 @@
     "nyc": "^11.4.1",
     "rollup": "^0.58.2",
     "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-commonjs": "^9.1.0",
     "should": "^13.2.1"
   },
   "license": "MIT"

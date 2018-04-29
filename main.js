@@ -1,5 +1,3 @@
-'use strict';
-
 const { isCorrect, unitsFormat } = require('./lib/helpers');
 const BaseFeels = require('./lib/base');
 
