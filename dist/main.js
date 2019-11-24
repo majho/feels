@@ -1,414 +1,377 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global.Feels = factory());
-}(this, (function () { 'use strict';
+const tempFormat = temp => {
+  if (temp === 'f' || temp === 'fahrenheit') {
+    return 'f';
+  }
 
-    var tempFormat = function tempFormat(temp) {
-        if (temp === 'f' || temp === 'fahrenheit') {
-            return 'f';
-        }if (temp === 'k' || temp === 'kelvin') {
-            return 'k';
-        }
-        return 'c';
+  if (temp === 'k' || temp === 'kelvin') {
+    return 'k';
+  }
+
+  return 'c';
+};
+
+const speedFormat = speed => {
+  if (speed === 'mph' || speed === 'mi/h') {
+    return 'mph';
+  }
+
+  if (['kmh', 'kph', 'kmph', 'km/h'].includes(speed)) {
+    return 'kph';
+  }
+
+  return 'mps';
+};
+
+const isCorrect = function isCorrect() {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
+  return args.every(arg => arg != null && Number.isFinite(arg));
+};
+const unitsFormat = units => {
+  if (!units) {
+    return {
+      temp: 'c',
+      speed: 'mps'
     };
+  }
 
-    var speedFormat = function speedFormat(speed) {
-        if (speed === 'mph' || speed === 'mi/h') {
-            return 'mph';
-        }if (['kmh', 'kph', 'kmph', 'km/h'].includes(speed)) {
-            return 'kph';
-        }
-        return 'mps';
-    };
+  const temp = units.temp ? units.temp.toLowerCase() : 'c';
+  const speed = units.speed ? units.speed.toLowerCase() : 'mps';
+  return {
+    temp: tempFormat(temp),
+    speed: speedFormat(speed)
+  };
+};
+const tempConvert = (temp, from, to) => {
+  if (!isCorrect(temp)) {
+    throw new TypeError('Temp must be specified and must be a number');
+  }
 
-    var isCorrect = function isCorrect() {
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-        }
+  if (from === to) {
+    return temp;
+  }
 
-        return args.every(function (arg) {
-            return arg != null && Number.isFinite(arg);
-        });
-    };
+  if (!(['c', 'f', 'k'].includes(from) && ['c', 'f', 'k'].includes(to))) {
+    throw new RangeError('Units must be c, f or k');
+  }
 
-    var unitsFormat = function unitsFormat(units) {
-        if (!units) {
-            return {
-                temp: 'c',
-                speed: 'mps'
-            };
-        }
+  if (from === 'c') {
+    return to === 'f' ? (temp * 1000 * (9 / 5) + 32 * 1000) / 1000 : (temp * 1000 + 273.15 * 1000) / 1000;
+  }
 
-        var temp = units.temp ? units.temp.toLowerCase() : 'c';
-        var speed = units.speed ? units.speed.toLowerCase() : 'mps';
+  if (from === 'f') {
+    return to === 'c' ? (temp - 32) * 1000 * (5 / 9) / 1000 : (temp + 459.67) * 1000 * (5 / 9) / 1000;
+  }
 
-        return { temp: tempFormat(temp), speed: speedFormat(speed) };
-    };
+  return to === 'c' ? // k
+  (temp * 1000 - 273.15 * 1000) / 1000 : (temp * 1000 * (9 / 5) - 459.67 * 1000) / 1000;
+};
+const speedConvert = (speed, from, to) => {
+  if (!isCorrect(speed)) {
+    throw new TypeError('Speed must be specified and must be a number');
+  }
 
-    var tempConvert = function tempConvert(temp, from, to) {
-        if (!isCorrect(temp)) {
-            throw new TypeError('Temp must be specified and must be a number');
-        }
-        if (from === to) {
-            return temp;
-        }
-        if (!(['c', 'f', 'k'].includes(from) && ['c', 'f', 'k'].includes(to))) {
-            throw new RangeError('Units must be c, f or k');
-        }
-        if (from === 'c') {
-            return to === 'f' ? (temp * 1000 * (9 / 5) + 32 * 1000) / 1000 : (temp * 1000 + 273.15 * 1000) / 1000;
-        }
-        if (from === 'f') {
-            return to === 'c' ? (temp - 32) * 1000 * (5 / 9) / 1000 : (temp + 459.67) * 1000 * (5 / 9) / 1000;
-        }
-        return to === 'c' ? // k
-        (temp * 1000 - 273.15 * 1000) / 1000 : (temp * 1000 * (9 / 5) - 459.67 * 1000) / 1000;
-    };
+  if (from === to) {
+    return speed;
+  }
 
-    var speedConvert = function speedConvert(speed, from, to) {
-        if (!isCorrect(speed)) {
-            throw new TypeError('Speed must be specified and must be a number');
-        }
-        if (from === to) {
-            return speed;
-        }
-        if (!(['mps', 'mph', 'kph'].includes(from) && ['mps', 'mph', 'kph'].includes(to))) {
-            throw new RangeError('Units must be mps, mph or kph');
-        }
-        if (from === 'mps') {
-            return to === 'mph' ? speed / 0.44704 : speed * 3.6;
-        }
-        if (from === 'mph') {
-            return to === 'mps' ? speed * 0.44704 : speed * 1.609344;
-        }
-        return to === 'mps' ? speed / 3.6 : speed / 1.609344; // kph
-    };
+  if (!(['mps', 'mph', 'kph'].includes(from) && ['mps', 'mph', 'kph'].includes(to))) {
+    throw new RangeError('Units must be mps, mph or kph');
+  }
 
-    /* eslint-disable max-len, no-mixed-operators, no-restricted-properties */
-    var HI = function HI(temp, humidity) {
-        return 16.923 + 0.185212 * temp + 5.37941 * humidity - 0.100254 * temp * humidity + 9.41695 * Math.pow(10, -3) * Math.pow(temp, 2) + 7.28898 * Math.pow(10, -3) * Math.pow(humidity, 2) + 3.45372 * Math.pow(10, -4) * Math.pow(temp, 2) * humidity - 8.14971 * Math.pow(10, -4) * temp * Math.pow(humidity, 2) + 1.02102 * Math.pow(10, -5) * Math.pow(temp, 2) * Math.pow(humidity, 2) - 3.8646 * Math.pow(10, -5) * Math.pow(temp, 3) + 2.91583 * Math.pow(10, -5) * Math.pow(humidity, 3) + 1.42721 * Math.pow(10, -6) * Math.pow(temp, 3) * humidity + 1.97483 * Math.pow(10, -7) * temp * Math.pow(humidity, 3) - 2.18429 * Math.pow(10, -8) * Math.pow(temp, 3) * Math.pow(humidity, 2) + 8.43296 * Math.pow(10, -10) * Math.pow(temp, 2) * Math.pow(humidity, 3) - 4.81975 * Math.pow(10, -11) * Math.pow(temp, 3) * Math.pow(humidity, 3);
-    };
+  if (from === 'mps') {
+    return to === 'mph' ? speed / 0.44704 : speed * 3.6;
+  }
 
-    var HI_CA = function HI_CA(temp, WVP) {
-        return temp + 0.5555 * (WVP - 10.0);
-    };
+  if (from === 'mph') {
+    return to === 'mps' ? speed * 0.44704 : speed * 1.609344;
+  }
 
-    var WCI = function WCI(temp, speed) {
-        return 13.12 + 0.6215 * temp - 11.37 * Math.pow(speed, 0.16) + 0.3965 * temp * Math.pow(speed, 0.16);
-    };
+  return to === 'mps' ? speed / 3.6 : speed / 1.609344; // kph
+};
 
-    var WVPbyDP = function WVPbyDP(temp) {
-        return 6.11 * Math.exp(5417.7530 * (1 / 273.16 - 1 / (temp + 273.15)));
-    };
+/* eslint-disable max-len, no-mixed-operators, no-restricted-properties */
+const HI = (temp, humidity) => 16.923 + 0.185212 * temp + 5.37941 * humidity - 0.100254 * temp * humidity + 9.41695 * Math.pow(10, -3) * Math.pow(temp, 2) + 7.28898 * Math.pow(10, -3) * Math.pow(humidity, 2) + 3.45372 * Math.pow(10, -4) * Math.pow(temp, 2) * humidity - 8.14971 * Math.pow(10, -4) * temp * Math.pow(humidity, 2) + 1.02102 * Math.pow(10, -5) * Math.pow(temp, 2) * Math.pow(humidity, 2) - 3.8646 * Math.pow(10, -5) * Math.pow(temp, 3) + 2.91583 * Math.pow(10, -5) * Math.pow(humidity, 3) + 1.42721 * Math.pow(10, -6) * Math.pow(temp, 3) * humidity + 1.97483 * Math.pow(10, -7) * temp * Math.pow(humidity, 3) - 2.18429 * Math.pow(10, -8) * Math.pow(temp, 3) * Math.pow(humidity, 2) + 8.43296 * Math.pow(10, -10) * Math.pow(temp, 2) * Math.pow(humidity, 3) - 4.81975 * Math.pow(10, -11) * Math.pow(temp, 3) * Math.pow(humidity, 3);
+const HI_CA = (temp, WVP) => temp + 0.5555 * (WVP - 10.0);
+const WCI = (temp, speed) => 13.12 + 0.6215 * temp - 11.37 * Math.pow(speed, 0.16) + 0.3965 * temp * Math.pow(speed, 0.16);
+const WVPbyDP = temp => 6.11 * Math.exp(5417.7530 * (1 / 273.16 - 1 / (temp + 273.15)));
+const RH = (temp, WVP) => WVP / (6.105 * Math.exp(17.27 * temp / (237.7 + temp))) * 100;
+const WVP = (temp, humidity) => humidity / 100 * 6.105 * Math.exp(17.27 * temp / (237.7 + temp));
 
-    var RH = function RH(temp, WVP) {
-        return WVP / (6.105 * Math.exp(17.27 * temp / (237.7 + temp))) * 100;
-    };
+/* eslint-disable no-param-reassign */
 
-    var WVP = function WVP(temp, humidity) {
-        return humidity / 100 * 6.105 * Math.exp(17.27 * temp / (237.7 + temp));
-    };
-
-    var classCallCheck = function (instance, Constructor) {
-      if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-      }
-    };
-
-    var inherits = function (subClass, superClass) {
-      if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-      }
-
-      subClass.prototype = Object.create(superClass && superClass.prototype, {
-        constructor: {
-          value: subClass,
-          enumerable: false,
-          writable: true,
-          configurable: true
-        }
-      });
-      if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    };
-
-    var possibleConstructorReturn = function (self, call) {
-      if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-      }
-
-      return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    };
-
-    /* eslint-disable no-param-reassign */
-
-    var BaseFeels = function () {
-        function BaseFeels() {
-            classCallCheck(this, BaseFeels);
-        }
-
-        BaseFeels.tempConvert = function tempConvert$$1(temp, from, to) {
-            var round = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
-            if (round) {
-                if (typeof round === 'function') {
-                    return round(tempConvert(temp, from, to));
-                }
-                return Math.round(tempConvert(temp, from, to));
-            }
-            return tempConvert(temp, from, to);
-        };
-
-        BaseFeels.speedConvert = function speedConvert$$1(speed, from, to) {
-            var round = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
-            if (round) {
-                if (typeof round === 'function') {
-                    return round(speedConvert(speed, from, to));
-                }
-                return Math.round(speedConvert(speed, from, to));
-            }
-            return speedConvert(speed, from, to);
-        };
-
-        BaseFeels.heatIndex = function heatIndex(temp, humidity) {
-            var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-                dewPoint = _ref.dewPoint,
-                round = _ref.round;
-
-            // HI
-            if (!isCorrect(temp, humidity)) {
-                throw new Error('One of the required arguments are not specified');
-            }
-            var t = BaseFeels.tempConvert(temp, 'c', 'f');
-
-            if (t < 68) {
-                throw new RangeError('Heat Index: temp must be >= (20C, 68F, 293.15K)');
-            }
-
-            if (dewPoint) {
-                humidity = BaseFeels.getRH(temp, humidity, { dewPoint: true });
-            } else if (humidity <= 0 || humidity > 100) {
-                throw new RangeError('Heat Index: humidity must be in (0, 100]');
-            }
-
-            return BaseFeels.tempConvert(HI(t, humidity), 'f', 'c', round);
-        };
-
-        BaseFeels.humidex = function humidex(temp, humidity) {
-            var _ref2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-                dewPoint = _ref2.dewPoint,
-                round = _ref2.round;
-
-            // HI_CA
-            if (!isCorrect(temp, humidity)) {
-                throw new Error('One of the required arguments are not specified');
-            }
-
-            if (temp <= 0) {
-                throw new RangeError('Humidex: temp must be > (0C, 32F, 273.15K)');
-            }
-
-            if (!dewPoint && (humidity <= 0 || humidity > 100)) {
-                throw new RangeError('Humidex: humidity must be in (0, 100]');
-            }
-
-            var wvp = dewPoint ? BaseFeels.getWVPbyDP(humidity) : BaseFeels.getWVP(temp, humidity);
-            return BaseFeels.tempConvert(HI_CA(temp, wvp), '', '', round);
-        };
-
-        BaseFeels.windChill = function windChill(temp, speed) {
-            var _ref3 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-                round = _ref3.round;
-
-            // WCI
-            if (!isCorrect(temp, speed)) {
-                throw new Error('One of the required arguments are not specified');
-            }
-
-            if (temp > 0) {
-                throw new RangeError('Wind Chill: temp must be <= (0C, 32F, 273.15K)');
-            } else if (speed < 0) {
-                throw new RangeError('Wind Chill: wind speed must be >= 0');
-            }
-
-            var s = BaseFeels.speedConvert(speed, 'mps', 'kph');
-            if (s >= 5) {
-                return BaseFeels.tempConvert(WCI(temp, s), '', '', round);
-            }
-            return BaseFeels.tempConvert(temp + (-1.59 + 0.1345 * temp) / 5 * s, '', '', round);
-        };
-
-        BaseFeels.getWVP = function getWVP(temp, humidity) {
-            var _ref4 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-                round = _ref4.round;
-
-            if (!isCorrect(humidity, temp)) {
-                throw new Error('One of the required arguments are not specified');
-            }
-
-            if (humidity <= 0 || humidity > 100) {
-                throw new RangeError('Water Vapour Pressure: humidity must be in (0, 100]');
-            }
-
-            return BaseFeels.tempConvert(WVP(temp, humidity), '', '', round);
-        };
-
-        BaseFeels.getWVPbyDP = function getWVPbyDP(dewPoint) {
-            var _ref5 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-                round = _ref5.round;
-
-            if (!isCorrect(dewPoint)) {
-                throw new Error('Dew point is not specified');
-            }
-
-            return BaseFeels.tempConvert(WVPbyDP(dewPoint), '', '', round);
-        };
-
-        BaseFeels.getRH = function getRH(temp, wvp) {
-            var _ref6 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-                dewPoint = _ref6.dewPoint,
-                round = _ref6.round;
-
-            if (!isCorrect(temp, wvp)) {
-                throw new Error('One of the required arguments are not specified');
-            }
-
-            return BaseFeels.tempConvert(RH(temp, dewPoint ? BaseFeels.getWVPbyDP(wvp) : wvp), '', '', round);
-        };
-
-        return BaseFeels;
-    }();
-
-    /* eslint-disable max-len, no-underscore-dangle, no-restricted-syntax */
-
-    function apparentTemp(tempConvert$$1, func) {
-        if (!isCorrect(this.temp) || !isCorrect(this.humidity) && !isCorrect(this.dewPoint)) {
-            throw new Error('One of the required arguments are not specified');
-        }
-
-        var temp = this.units.temp;
-
-        var t = tempConvert$$1(this.temp, temp, 'c');
-
-        var index = isCorrect(this.dewPoint) && !isCorrect(this.humidity) ? func(t, tempConvert$$1(this.dewPoint, temp, 'c'), { dewPoint: true }) : func(t, this.humidity);
-
-        return tempConvert$$1(index, 'c', this._units.temp, this.round);
+class BaseFeels {
+  static tempConvert(temp, from, to, round) {
+    if (round === void 0) {
+      round = false;
     }
 
-    var Feels = function (_BaseFeels) {
-        inherits(Feels, _BaseFeels);
+    if (round) {
+      if (typeof round === 'function') {
+        return round(tempConvert(temp, from, to));
+      }
 
-        function Feels(opts) {
-            classCallCheck(this, Feels);
+      return Math.round(tempConvert(temp, from, to));
+    }
 
-            var _this = possibleConstructorReturn(this, _BaseFeels.call(this));
+    return tempConvert(temp, from, to);
+  }
 
-            _this.setOptions(opts);
-            _this._methods = {
-                HI: 'heatIndex',
-                HI_CA: 'humidex',
-                WCI: 'windChill'
-            };
-            return _this;
+  static speedConvert(speed, from, to, round) {
+    if (round === void 0) {
+      round = false;
+    }
+
+    if (round) {
+      if (typeof round === 'function') {
+        return round(speedConvert(speed, from, to));
+      }
+
+      return Math.round(speedConvert(speed, from, to));
+    }
+
+    return speedConvert(speed, from, to);
+  }
+
+  static heatIndex(temp, humidity, _temp) {
+    let {
+      dewPoint,
+      round
+    } = _temp === void 0 ? {} : _temp;
+
+    // HI
+    if (!isCorrect(temp, humidity)) {
+      throw new Error('One of the required arguments are not specified');
+    }
+
+    const t = BaseFeels.tempConvert(temp, 'c', 'f');
+
+    if (t < 68) {
+      throw new RangeError('Heat Index: temp must be >= (20C, 68F, 293.15K)');
+    }
+
+    if (dewPoint) {
+      humidity = BaseFeels.getRH(temp, humidity, {
+        dewPoint: true
+      });
+    } else if (humidity <= 0 || humidity > 100) {
+      throw new RangeError('Heat Index: humidity must be in (0, 100]');
+    }
+
+    return BaseFeels.tempConvert(HI(t, humidity), 'f', 'c', round);
+  }
+
+  static humidex(temp, humidity, _temp2) {
+    let {
+      dewPoint,
+      round
+    } = _temp2 === void 0 ? {} : _temp2;
+
+    // HI_CA
+    if (!isCorrect(temp, humidity)) {
+      throw new Error('One of the required arguments are not specified');
+    }
+
+    if (temp <= 0) {
+      throw new RangeError('Humidex: temp must be > (0C, 32F, 273.15K)');
+    }
+
+    if (!dewPoint && (humidity <= 0 || humidity > 100)) {
+      throw new RangeError('Humidex: humidity must be in (0, 100]');
+    }
+
+    const wvp = dewPoint ? BaseFeels.getWVPbyDP(humidity) : BaseFeels.getWVP(temp, humidity);
+    return BaseFeels.tempConvert(HI_CA(temp, wvp), '', '', round);
+  }
+
+  static windChill(temp, speed, _temp3) {
+    let {
+      round
+    } = _temp3 === void 0 ? {} : _temp3;
+
+    // WCI
+    if (!isCorrect(temp, speed)) {
+      throw new Error('One of the required arguments are not specified');
+    }
+
+    if (temp > 0) {
+      throw new RangeError('Wind Chill: temp must be <= (0C, 32F, 273.15K)');
+    } else if (speed < 0) {
+      throw new RangeError('Wind Chill: wind speed must be >= 0');
+    }
+
+    const s = BaseFeels.speedConvert(speed, 'mps', 'kph');
+
+    if (s >= 5) {
+      return BaseFeels.tempConvert(WCI(temp, s), '', '', round);
+    }
+
+    return BaseFeels.tempConvert(temp + (-1.59 + 0.1345 * temp) / 5 * s, '', '', round);
+  }
+
+  static getWVP(temp, humidity, _temp4) {
+    let {
+      round
+    } = _temp4 === void 0 ? {} : _temp4;
+
+    if (!isCorrect(humidity, temp)) {
+      throw new Error('One of the required arguments are not specified');
+    }
+
+    if (humidity <= 0 || humidity > 100) {
+      throw new RangeError('Water Vapour Pressure: humidity must be in (0, 100]');
+    }
+
+    return BaseFeels.tempConvert(WVP(temp, humidity), '', '', round);
+  }
+
+  static getWVPbyDP(dewPoint, _temp5) {
+    let {
+      round
+    } = _temp5 === void 0 ? {} : _temp5;
+
+    if (!isCorrect(dewPoint)) {
+      throw new Error('Dew point is not specified');
+    }
+
+    return BaseFeels.tempConvert(WVPbyDP(dewPoint), '', '', round);
+  }
+
+  static getRH(temp, wvp, _temp6) {
+    let {
+      dewPoint,
+      round
+    } = _temp6 === void 0 ? {} : _temp6;
+
+    if (!isCorrect(temp, wvp)) {
+      throw new Error('One of the required arguments are not specified');
+    }
+
+    return BaseFeels.tempConvert(RH(temp, dewPoint ? BaseFeels.getWVPbyDP(wvp) : wvp), '', '', round);
+  }
+
+}
+
+/* eslint-disable max-len, no-underscore-dangle, no-restricted-syntax */
+
+function apparentTemp(tempConvert, func) {
+  if (!isCorrect(this.temp) || !isCorrect(this.humidity) && !isCorrect(this.dewPoint)) {
+    throw new Error('One of the required arguments are not specified');
+  }
+
+  const {
+    temp
+  } = this.units;
+  const t = tempConvert(this.temp, temp, 'c');
+  const index = isCorrect(this.dewPoint) && !isCorrect(this.humidity) ? func(t, tempConvert(this.dewPoint, temp, 'c'), {
+    dewPoint: true
+  }) : func(t, this.humidity);
+  return tempConvert(index, 'c', this._units.temp, this.round);
+}
+
+class Feels extends BaseFeels {
+  constructor(opts) {
+    super();
+    this.setOptions(opts);
+    this._methods = {
+      HI: 'heatIndex',
+      HI_CA: 'humidex',
+      WCI: 'windChill'
+    };
+  }
+
+  setOptions(opts) {
+    if (opts === void 0) {
+      opts = {};
+    }
+
+    this.units = unitsFormat(opts.units);
+    this.temp = opts.temp;
+    this.speed = opts.speed || 0;
+    this.humidity = opts.humidity;
+    this.dewPoint = opts.dewPoint;
+    this.wvp = opts.wvp;
+    this.round = opts.round;
+    this._units = {
+      temp: this.units.temp,
+      speed: this.units.speed
+    };
+    return this;
+  }
+
+  like(methods) {
+    if (methods === void 0) {
+      methods = ['HI', 'HI_CA', 'WCI'];
+    }
+
+    if (typeof methods === 'string') {
+      const method = this._methods[methods.toUpperCase()];
+
+      if (method) {
+        return this[method]();
+      }
+
+      throw new RangeError("Methods must be one of: " + Object.keys(this._methods).join(', '));
+    }
+
+    if (Array.isArray(methods)) {
+      let like = 0;
+      let count = methods.length;
+
+      for (const m of methods) {
+        const method = this._methods[m.toUpperCase()];
+
+        if (method) {
+          try {
+            like += this[method]();
+          } catch (e) {
+            // eslint-disable-next-line no-plusplus
+            count--;
+          }
+        } else {
+          // eslint-disable-next-line max-len
+          throw new RangeError("Methods must be one of: " + Object.keys(this._methods).join(', '));
         }
+      }
 
-        Feels.prototype.setOptions = function setOptions() {
-            var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      if (!count) {
+        throw new Error('No valid methods for these values');
+      }
 
-            this.units = unitsFormat(opts.units);
-            this.temp = opts.temp;
-            this.speed = opts.speed || 0;
-            this.humidity = opts.humidity;
-            this.dewPoint = opts.dewPoint;
-            this.wvp = opts.wvp;
-            this.round = opts.round;
-            this._units = {
-                temp: this.units.temp,
-                speed: this.units.speed
-            };
-            return this;
-        };
+      return Feels.tempConvert(like / count, '', '', this.round);
+    }
 
-        Feels.prototype.like = function like() {
-            var methods = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ['HI', 'HI_CA', 'WCI'];
+    return this.like(['HI', 'HI_CA', 'WCI']);
+  }
 
-            if (typeof methods === 'string') {
-                var method = this._methods[methods.toUpperCase()];
-                if (method) {
-                    return this[method]();
-                }
-                throw new RangeError('Methods must be one of: ' + Object.keys(this._methods).join(', '));
-            }
+  heatIndex() {
+    // HI
+    return apparentTemp.call(this, Feels.tempConvert, Feels.heatIndex);
+  }
 
-            if (Array.isArray(methods)) {
-                var like = 0;
-                var count = methods.length;
-                for (var _iterator = methods, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-                    var _ref;
+  humidex() {
+    // HI_CA
+    return apparentTemp.call(this, Feels.tempConvert, Feels.humidex);
+  }
 
-                    if (_isArray) {
-                        if (_i >= _iterator.length) break;
-                        _ref = _iterator[_i++];
-                    } else {
-                        _i = _iterator.next();
-                        if (_i.done) break;
-                        _ref = _i.value;
-                    }
+  windChill() {
+    // WCI
+    if (!isCorrect(this.temp, this.speed)) {
+      throw new Error('One of the required arguments are not specified');
+    }
 
-                    var m = _ref;
+    const {
+      temp,
+      speed
+    } = this.units;
+    const u = this._units.temp;
+    const t = Feels.tempConvert(this.temp, temp, 'c');
+    const s = Feels.speedConvert(this.speed, speed, 'mps');
+    return Feels.tempConvert(Feels.windChill(t, s), 'c', u, this.round);
+  }
 
-                    var _method = this._methods[m.toUpperCase()];
-                    if (_method) {
-                        try {
-                            like += this[_method]();
-                        } catch (e) {
-                            // eslint-disable-next-line no-plusplus
-                            count--;
-                        }
-                    } else {
-                        // eslint-disable-next-line max-len
-                        throw new RangeError('Methods must be one of: ' + Object.keys(this._methods).join(', '));
-                    }
-                }
+}
 
-                if (!count) {
-                    throw new Error('No valid methods for these values');
-                }
-                return Feels.tempConvert(like / count, '', '', this.round);
-            }
-            return this.like(['HI', 'HI_CA', 'WCI']);
-        };
-
-        Feels.prototype.heatIndex = function heatIndex() {
-            // HI
-            return apparentTemp.call(this, Feels.tempConvert, Feels.heatIndex);
-        };
-
-        Feels.prototype.humidex = function humidex() {
-            // HI_CA
-            return apparentTemp.call(this, Feels.tempConvert, Feels.humidex);
-        };
-
-        Feels.prototype.windChill = function windChill() {
-            // WCI
-            if (!isCorrect(this.temp, this.speed)) {
-                throw new Error('One of the required arguments are not specified');
-            }
-            var _units = this.units,
-                temp = _units.temp,
-                speed = _units.speed;
-
-            var u = this._units.temp;
-            var t = Feels.tempConvert(this.temp, temp, 'c');
-            var s = Feels.speedConvert(this.speed, speed, 'mps');
-
-            return Feels.tempConvert(Feels.windChill(t, s), 'c', u, this.round);
-        };
-
-        return Feels;
-    }(BaseFeels);
-
-    return Feels;
-
-})));
+export default Feels;

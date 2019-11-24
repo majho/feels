@@ -45,15 +45,15 @@
     "url": "https://github.com/strikeentco/feels/issues"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.6.1",
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
     "eslint": "^6.1.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "rollup": "^0.58.2",
-    "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-commonjs": "^9.1.0"
+    "rollup": "^1.26.3",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-filesize": "^6.2.1"
   },
   "license": "MIT"
 }

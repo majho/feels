@@ -1,15 +1,18 @@
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
+import filesize from 'rollup-plugin-filesize';
 
 export default {
     input: 'main.js',
     output: {
         file: 'dist/main.js',
-        name: 'Feels',
-        format: 'umd'
+        format: 'es',
+        // name: 'Feels',
+        // format: 'umd',
     },
     plugins: [
         commonjs(),
-        babel()
-    ]
+        babel(),
+        filesize(),
+    ],
 };

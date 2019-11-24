@@ -1,11 +1,18 @@
 {
-    "presets": [["env", {
+    "presets": [["@babel/env", {
         "targets": {
-            "browsers": ["last 2 versions", "> 2%", "not IE <= 10"]
+            // "browsers": ["last 2 versions", "> 2%", "not IE <= 10"]
+            "browsers": [
+                "chrome >= 70",
+                "edge >= 16",
+                "firefox >= 64",
+                "ios >= 12",
+                "safari >= 12"
+            ]
         },
         "debug": false,
         "loose": true,
         "modules": false
     }]],
-    "plugins": ["external-helpers"]
+    // "plugins": ["external-helpers"]
 }
